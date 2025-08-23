@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useState } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+} from "react-router-dom";
+import { auth, login, logout, fn } from "./firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
+import COTMBanner from "./components/COTMBanner";
+import Profile from "./components/Profile";
+import ExchangePanel from "./components/ExchangePanel";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => onAuthStateChanged(auth, setUser), []);
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <div className="shell">
+        <header>
+          <Link to="/" className="brand">
+            COTM
+          </Link>
+          <nav>
+            <Link to="/">Home</Link>
+            {user && <Link to="/profile">My Profile</Link>}
+            {user && <Link to="/exchange">Exchange</Link>}
+          </nav>
+          <div className="auth">
+            {!user ? (
+              <button onClick={login}>Sign in</button>
+            ) : (
+              <>
+                <span className="user">{user.displayName}</span>
+                <button onClick={logout}>Sign out</button>
+              </>
+            )}
+          </div>
+        </header>
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile user={user} />} />
+            <Route path="/exchange" element={<ExchangePanel user={user} />} />
+          </Routes>
+        </main>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+function Home() {
+  return (
+    <div className="container">
+      <COTMBanner />
+    </div>
+  );
+}
