@@ -5,7 +5,7 @@ import { getFirestore } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDaXssJDIGYr3bsCW3WCCzdgoiDpxRfzDE",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "catch-of-the-minute.firebaseapp.com",
   projectId: "catch-of-the-minute",
   storageBucket: "catch-of-the-minute.firebasestorage.app",
