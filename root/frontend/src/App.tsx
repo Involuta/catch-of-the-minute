@@ -14,7 +14,24 @@ import ExchangePanel from "./components/ExchangePanel";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  useEffect(() => onAuthStateChanged(auth, setUser), []);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user ? user.email : "No user");
+      setUser(user);
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  console.log("Rendering App, user:", user);
+
   return (
     <BrowserRouter>
       <div className="shell">
@@ -29,7 +46,19 @@ export default function App() {
           </nav>
           <div className="auth">
             {!user ? (
-              <button onClick={login}>Sign in</button>
+              <button
+                onClick={async () => {
+                  console.log("Login button clicked!");
+                  try {
+                    await login();
+                    console.log("Login function completed");
+                  } catch (error) {
+                    console.error("Error calling login:", error);
+                  }
+                }}
+              >
+                Sign in
+              </button>
             ) : (
               <>
                 <span className="user">{user.displayName}</span>

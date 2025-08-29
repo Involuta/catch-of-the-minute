@@ -20,7 +20,22 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const functions = getFunctions(app, "us-central1");
 
-export async function login(){ await signInWithPopup(auth, new GoogleAuthProvider()); }
+export async function login() { 
+  try {
+    console.log('Starting Google sign-in popup...');
+    console.log('Current auth state before popup:', auth.currentUser);
+    
+    const provider = new GoogleAuthProvider();
+    console.log('Google provider created, initiating popup...');
+    
+    const result = await signInWithPopup(auth, provider);
+    console.log('Popup completed successfully:', result.user.email);
+    return result;
+  } catch (error) {
+    console.error('Error during login popup:', error);
+    throw error;
+  }
+}
 export async function logout(){ await signOut(auth); }
 
 // Callable functions
