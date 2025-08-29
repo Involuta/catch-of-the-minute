@@ -85,7 +85,7 @@ export const catchCreature = functions.https.onCall(async (data, ctx) => {
     });
 
     // lightweight public profile update
-    tx.set(db.collection("public").doc("usersLight").collection("").doc(uid), {
+    tx.set(db.collection("public").doc("usersLight").collection("users").doc(uid), {
       displayName: ctx.auth?.token?.name ?? "Player",
       photoURL: ctx.auth?.token?.picture ?? null,
       lastCaught: {
@@ -96,13 +96,8 @@ export const catchCreature = functions.https.onCall(async (data, ctx) => {
       }
     }, { merge: true });
 
-    // event
-    tx.set(cotmRef.collection("events").doc(), {
-      type: "catch",
-      createdAt: admin.firestore.Timestamp.now(),
-      actorUid: uid,
-      payload: { species: species.key, number: awardedNumber }
-    });
+    // Note: Removed events subcollection creation as it was causing path errors
+    // The catch event is still recorded in the user's profile above
   });
   return { ok: true };
 });
