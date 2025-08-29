@@ -9,6 +9,13 @@ export default function COTMBanner() {
   async function refresh() {
     setLoading(true);
     const res: any = await fn.getCurrentCOTM({});
+    console.log("COTM response:", res.data);
+    if (res.data.exists) {
+      console.log("minuteStart:", res.data.data.minuteStart);
+      console.log("minuteEnd:", res.data.data.minuteEnd);
+      console.log("minuteStart type:", typeof res.data.data.minuteStart);
+      console.log("minuteEnd type:", typeof res.data.data.minuteEnd);
+    }
     setCotm(res.data.exists ? { id: res.data.id, ...res.data.data } : null);
     setLoading(false);
   }
@@ -25,10 +32,19 @@ export default function COTMBanner() {
       <div className="card">No COTM yet. Waiting for the minute to tick…</div>
     );
 
-  const start = cotm.minuteStart.toDate
-    ? cotm.minuteStart.toDate()
-    : new Date();
-  const end = cotm.minuteEnd.toDate ? cotm.minuteEnd.toDate() : new Date();
+  // Convert Firestore Timestamps to Date objects for display
+  const start =
+    cotm.minuteStart && cotm.minuteStart._seconds
+      ? new Date(cotm.minuteStart._seconds * 1000)
+      : new Date();
+  const end =
+    cotm.minuteEnd && cotm.minuteEnd._seconds
+      ? new Date(cotm.minuteEnd._seconds * 1000)
+      : new Date();
+
+  // Debug: log what we're working with
+  console.log("Converted start:", start, "type:", typeof start);
+  console.log("Converted end:", end, "type:", typeof end);
 
   return (
     <div className="card">
@@ -40,7 +56,9 @@ export default function COTMBanner() {
             Number remaining: <b>{cotm.currentNumber}</b> / {cotm.maxNumber}
           </div>
           <div>
-            Window: {start.toLocaleTimeString()} - {end.toLocaleTimeString()}
+            Window:{" "}
+            {start instanceof Date ? start.toLocaleTimeString() : "Loading..."}{" "}
+            - {end instanceof Date ? end.toLocaleTimeString() : "Loading..."}
           </div>
         </div>
         <CatchButton cotmId={cotm.id} disabled={cotm.currentNumber <= 0} />
