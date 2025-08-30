@@ -15,13 +15,13 @@ export const scheduleNextCOTM = functions.pubsub.schedule("* * * * *").onRun(asy
   const end   = new admin.firestore.Timestamp(startSec + 60, 0);
   const minuteId = new Date(startSec*1000).toISOString().slice(0,16).replace(/[:\-T]/g,"");
 
-  const species = randomCreature();
+  const creature = randomCreature();
   // choose a max number > 0
   const maxNumber = Math.max(1, Math.floor(Math.random()*1000)+1); // 1..1000 to keep it fun live
   const cotmDoc = {
     minuteStart: start,
     minuteEnd: end,
-    species,
+    creature,
     currentNumber: maxNumber,
     maxNumber,
     attacksEnabledWindow: { startOffsetSec: 10, endOffsetSec: 50 }
@@ -33,7 +33,7 @@ export const scheduleNextCOTM = functions.pubsub.schedule("* * * * *").onRun(asy
   const { PubSub } = await import("@google-cloud/pubsub");
   const pubsub = new PubSub();
   await pubsub.topic("cotm-started").publishMessage({
-    json: { minuteId, minuteStartSec: startSec, species, maxNumber }
+    json: { minuteId, minuteStartSec: startSec, creature, maxNumber }
   });
 
   return null;
@@ -72,13 +72,13 @@ export const catchCreature = functions.https.onCall(async (data, ctx) => {
 
     // award to user with the *pre-decrement* number
     const awardedNumber = cotm.currentNumber; // e.g. 2 -> you get "Lanternfish 2"
-    const species = cotm.species as {key:CreatureKey; name:string; basePower:number};
+    const creature = cotm.creature as {key:CreatureKey; name:string; basePower:number};
 
     const invRef = db.collection("users").doc(uid).collection("inventory").doc(uuid());
     tx.set(invRef, {
-      creatureKey: species.key,
-      name: species.name,
-      power: species.basePower,
+      creatureKey: creature.key,
+      name: creature.name,
+      power: creature.basePower,
       number: awardedNumber,
       caughtAt: admin.firestore.Timestamp.now(),
       alive: true
@@ -89,8 +89,8 @@ export const catchCreature = functions.https.onCall(async (data, ctx) => {
       displayName: ctx.auth?.token?.name ?? "Player",
       photoURL: ctx.auth?.token?.picture ?? null,
       lastCaught: {
-        creatureKey: species.key,
-        name: species.name,
+        creatureKey: creature.key,
+        name: creature.name,
         number: awardedNumber,
         at: admin.firestore.Timestamp.now()
       }

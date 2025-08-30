@@ -59,7 +59,7 @@ export default function COTMBanner() {
 
   return (
     <div className="card">
-      <h2>Catch of the Minute</h2>
+      <div className="creature">{cotm.creature.name}</div>
       {refreshing && (
         <div style={{ fontSize: "12px", opacity: 0.7, marginBottom: "8px" }}>
           Refreshing...
@@ -67,7 +67,7 @@ export default function COTMBanner() {
       )}
       <div className="row">
         <div>
-          <div className="species">{cotm.species.name}</div>
+          <div className="species">{cotm.creature.species}</div>
           <div>
             Number remaining: <b>{cotm.currentNumber}</b> / {cotm.maxNumber}
           </div>
