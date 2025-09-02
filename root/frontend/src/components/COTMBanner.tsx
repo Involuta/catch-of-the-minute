@@ -68,13 +68,12 @@ export default function COTMBanner() {
       <div className="row">
         <div>
           <div className="species">{cotm.creature.species}</div>
-          <div>
+          <div className="stats">
+            Power: <b>{cotm.creature.powerTier}</b>
+            <br></br>
+            Rarity: <b>{cotm.creature.prevalenceTier}</b>
+            <br></br>
             Number remaining: <b>{cotm.currentNumber}</b> / {cotm.maxNumber}
-          </div>
-          <div>
-            Window:{" "}
-            {start instanceof Date ? start.toLocaleTimeString() : "Loading..."}{" "}
-            - {end instanceof Date ? end.toLocaleTimeString() : "Loading..."}
           </div>
         </div>
         <CatchButton cotmId={cotm.id} disabled={cotm.currentNumber <= 0} />
